@@ -8,7 +8,7 @@ A web application for data science workflows, allowing users to upload datasets,
 - Initial analysis and predictions using scikit-learn
 - Ready for AI model integration via OpenAI API or TensorFlow
 
-## Tech Stack
+## Tech Stack:
 - Front-end: HTML, Bootstrap (optional)
 - Back-end: Python, Flask
 - Data processing: Pandas, scikit-learn
