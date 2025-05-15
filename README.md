@@ -1,2 +1,15 @@
-# AI_Data_Science_LAb
-AI‑DataScience‑Lab is a web app for uploading CSV datasets, cleaning with Pandas, and running quick exploratory analyses and regression models using scikit‑learn. Its modular design supports future AI extensions, like deep learning with TensorFlow or insight generation via the OpenAI API.
+# AI-DataScience-Lab
+
+A web application for data science workflows, allowing users to upload datasets, clean and analyze them using Pandas and scikit-learn (with future TensorFlow integration), powered by a Flask backend.
+
+## Features
+- File upload interface
+- Data cleaning with Pandas
+- Initial analysis and predictions using scikit-learn
+- Ready for AI model integration via OpenAI API or TensorFlow
+
+## Tech Stack
+- Front-end: HTML, Bootstrap (optional)
+- Back-end: Python, Flask
+- Data processing: Pandas, scikit-learn
+- Deployment: Render / GitHub Pages
