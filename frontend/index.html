@@ -5,30 +5,66 @@
 </head>
 <body>
   <h2>Upload Your Data</h2>
-  <form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".csv, .xlsx" required>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" accept=".csv" required>
     <input type="submit" value="Upload and Analyze">
   </form>
 
   <h3>OpenAI Summary</h3>
-  <div>{{ summary }}</div>
+  <div id="summary"></div>
 
   <h3>Scatter Plot</h3>
-  {% if plot_url %}
-    <img src="{{ plot_url }}" alt="Scatter Plot">
-  {% endif %}
+  <img id="plot" style="display:none;" alt="Scatter Plot" />
 
   <h3>Backend Log</h3>
-  <pre>{{ log }}</pre>
+  <pre id="log"></pre>
 
   <h3>Forecasted Values</h3>
-  <pre>{{ forecast }}</pre>
+  <pre id="forecast"></pre>
 
-  <form action="/predict" method="post">
+  <form id="predictForm">
     <label>Enter future X values (comma-separated):</label><br>
-    <input type="text" name="future_x" placeholder="e.g., 2025-06-01, 2025-06-15">
+    <input type="text" id="futureInput" placeholder="e.g., 2025-06-01, 2025-06-15">
     <input type="submit" value="Forecast">
   </form>
+
+  <script>
+    const backendUrl = 'http://18.118.126.228';
+
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('file', document.getElementById('fileInput').files[0]);
+
+      const response = await fetch(`${backendUrl}/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      document.getElementById('summary').textContent = data.summary;
+      document.getElementById('log').textContent = data.log;
+      document.getElementById('forecast').textContent = data.forecast;
+      document.getElementById('plot').src = `${backendUrl}/static/plot.png`;
+      document.getElementById('plot').style.display = 'block';
+    });
+
+    document.getElementById('predictForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const futureX = document.getElementById('futureInput').value;
+
+      const formData = new FormData();
+      formData.append('future_x', futureX);
+
+      const response = await fetch(`${backendUrl}/predict`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.text();
+      document.getElementById('forecast').textContent = data;
+    });
+  </script>
 </body>
 </html>
 
