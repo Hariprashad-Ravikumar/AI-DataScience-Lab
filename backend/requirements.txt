@@ -1,5 +1,6 @@
 flask
+flask-cors
 pandas
-scikit-learn
 matplotlib
+scikit-learn
 openai
