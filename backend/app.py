@@ -10,8 +10,10 @@ import numpy as np
 import openai
 import sys
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder="static", template_folder="../frontend")
+CORS(app)
 @app.route("/")
 def home():
     return render_template("index.html", summary="", log="", forecast="", plot_url=None)
