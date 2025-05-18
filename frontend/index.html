@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Data Science Lab</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h2>Upload Your Data</h2>
+  <form action="http://localhost:5000/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv, .xlsx" required>
+    <input type="submit" value="Upload and Analyze">
+  </form>
+
+  <h3>OpenAI Summary</h3>
+  <div id="summary">{{summary}}</div>
+
+  <h3>Scatter Plot</h3>
+  <img src="http://localhost:5000/static/plot.png" alt="Scatter Plot">
+
+  <h3>Backend Log</h3>
+  <pre>{{log}}</pre>
+
+  <h3>Forecasted Values</h3>
+  <pre>{{forecast}}</pre>
+
+  <form action="http://localhost:5000/predict" method="post">
+    <label>Enter future X values (comma-separated):</label><br>
+    <input type="text" name="future_x" placeholder="e.g., 2025-06-01, 2025-06-15">
+    <input type="submit" value="Forecast">
+  </form>
+</body>
+</html>
