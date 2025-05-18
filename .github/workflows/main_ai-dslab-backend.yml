@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python app to Azure Web App - ai-dslab-backend
 
 on:
@@ -9,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+permissions:
+  id-token: write  # Needed for OIDC login
+  contents: read   # Needed to checkout code
 
 jobs:
   build-and-deploy:
@@ -32,9 +32,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1FAE509EB83D4609AE36AC7F0F996753 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1CAD4C5815F74749A836FC494CB56088 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BF92A8605B30418D89D037A4530EF5D2 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_XXXX }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_XXXX }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXXX }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
