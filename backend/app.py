@@ -1,16 +1,22 @@
 import os
 import io
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # <- forces a non-GUI backend
 import matplotlib.pyplot as plt
-from flask import Flask, request, jsonify, send_file, redirect, url_for
+from flask import Flask, request, jsonify, send_file, redirect, url_for, render_template
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import openai
 import sys
+from datetime import datetime
 
-app = Flask(__name__)
-UPLOAD_FOLDER = "backend/uploads"
-STATIC_FOLDER = "backend/static"
+app = Flask(__name__, static_folder="static", template_folder="../frontend")
+@app.route("/")
+def home():
+    return render_template("index.html", summary="", log="", forecast="", plot_url=None)
+UPLOAD_FOLDER = "uploads"
+STATIC_FOLDER = "static"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
 
@@ -49,47 +55,87 @@ def upload_file():
     log_print("📊 Scatter plot saved.")
 
     # Model
-    log_print("⚙️ Importing scikit-learn...")
-    X = pd.to_numeric(df['X'], errors='coerce').dropna().values.reshape(-1, 1)
+    log_print("⚙️ Converting X (dates) to numeric format...")
+    df['X'] = pd.to_datetime(df['X'], errors='coerce')
+    df.dropna(inplace=True)
+    X = df['X'].map(pd.Timestamp.toordinal).values.reshape(-1, 1)
     y = df['Y'].values
+
+    if len(X) == 0:
+        log_print("❌ No valid data to fit the model.")
+        return render_template("index.html", summary="No valid data found.", log=log_stream.getvalue(), forecast="N/A", plot_url=None)
+
     model = LinearRegression()
     model.fit(X, y)
     log_print("🤖 Model trained.")
 
     # OpenAI Summary
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    summary = openai.ChatCompletion.create(
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": "Summarize this dataset:"},
-                  {"role": "user", "content": df.head(10).to_csv()}]
-    ).choices[0].message.content
+        messages=[
+            {"role": "system", "content": "Summarize this dataset:"},
+            {"role": "user", "content": df.head(10).to_csv()}
+        ]
+     )
+
+    summary = response.choices[0].message.content
 
     log_print("🧠 OpenAI Summary generated.")
+    return render_template("index.html", summary=summary, log=log_stream.getvalue(), forecast="Submit future x-values below to get predictions.",plot_url="/static/plot.png")
 
-    return {
-        "summary": summary,
-        "log": log_stream.getvalue(),
-        "forecast": "Submit future x-values below to get predictions."
-    }
 
 @app.route("/predict", methods=["POST"])
 def predict():
     future_x = request.form.get("future_x")
-    values = [float(x.strip()) for x in future_x.split(",")]
-    model = LinearRegression()
 
-    # Dummy fit for now
-    df = pd.read_csv(os.path.join(UPLOAD_FOLDER, os.listdir(UPLOAD_FOLDER)[0]))
+    try:
+        # Convert input strings to ordinal integers
+        values = [
+            datetime.strptime(x.strip(), "%Y-%m-%d").toordinal()
+            for x in future_x.split(",")
+        ]
+    except ValueError:
+        log_print("❌ Invalid date format. Use YYYY-MM-DD.")
+        return render_template(
+            "index.html",
+            summary="",
+            log=log_stream.getvalue(),
+            forecast="Invalid date format. Use YYYY-MM-DD.",
+            plot_url=None
+        )
+
+    # Reload most recent uploaded file
+    filename = os.listdir(UPLOAD_FOLDER)[0]
+    df = pd.read_csv(os.path.join(UPLOAD_FOLDER, filename))
     df.dropna(inplace=True)
     df.columns = ['X', 'Y']
-    X = pd.to_numeric(df['X'], errors='coerce').dropna().values.reshape(-1, 1)
+    df['X'] = pd.to_datetime(df['X'], errors='coerce')
+    df.dropna(inplace=True)
+
+    X = df['X'].map(pd.Timestamp.toordinal).values.reshape(-1, 1)
     y = df['Y'].values
+
+    model = LinearRegression()
     model.fit(X, y)
 
-    prediction = model.predict(np.array(values).reshape(-1, 1))
-    return {
-        "forecast": dict(zip(values, prediction.tolist()))
+    predicted = model.predict(np.array(values).reshape(-1, 1))
+    result = {
+        datetime.fromordinal(v).strftime("%Y-%m-%d"): round(p, 2)
+        for v, p in zip(values, predicted)
     }
+
+    log_print("🔮 Forecast complete.")
+
+    return render_template(
+        "index.html",
+        summary="",
+        log=log_stream.getvalue(),
+        forecast=result,
+        plot_url="/static/plot.png"
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
