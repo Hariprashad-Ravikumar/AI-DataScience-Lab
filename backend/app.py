@@ -86,7 +86,7 @@ def upload_file():
     summary = response.choices[0].message.content
 
     log_print("🧠 OpenAI Summary generated.")
-    return render_template("index.html", summary=summary, log=log_stream.getvalue(), forecast="Submit future x-values below to get predictions.",plot_url="/static/plot.png")
+    return jsonify({"summary": summary, "log": log_stream.getvalue(), "forecast": "Submit future x-values below to get predictions.", "plot_url": "/static/plot.png"})
 
 
 @app.route("/predict", methods=["POST"])
@@ -131,13 +131,7 @@ def predict():
 
     log_print("🔮 Forecast complete.")
 
-    return render_template(
-        "index.html",
-        summary="",
-        log=log_stream.getvalue(),
-        forecast=result,
-        plot_url="/static/plot.png"
-    )
+    return jsonify({ "forecast": result, "log": log_stream.getvalue(), "plot_url": "/static/plot.png" })
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True)
 
