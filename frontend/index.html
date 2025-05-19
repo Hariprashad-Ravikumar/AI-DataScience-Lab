@@ -23,7 +23,7 @@
   <pre id="forecast"></pre>
 
   <form id="predictForm">
-    <label>Enter future X values (comma-separated):</label><br>
+    <label>Enter future X values (comma-separated, e.g., 2025-06-01, 2025-06-15):</label><br>
     <input type="text" id="futureInput" placeholder="e.g., 2025-06-01, 2025-06-15">
     <input type="submit" value="Forecast">
   </form>
@@ -36,17 +36,31 @@
       const formData = new FormData();
       formData.append('file', document.getElementById('fileInput').files[0]);
 
-      const response = await fetch(`${backendUrl}/upload`, {
-        method: 'POST',
-        body: formData
-      });
+      try {
+        const response = await fetch(`${backendUrl}/upload`, {
+          method: 'POST',
+          body: formData
+        });
 
-      const data = await response.json();
-      document.getElementById('summary').textContent = data.summary;
-      document.getElementById('log').textContent = data.log;
-      document.getElementById('forecast').textContent = data.forecast;
-      document.getElementById('plot').src = `${backendUrl}/static/plot.png`;
-      document.getElementById('plot').style.display = 'block';
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Upload error:", errorText);
+          alert("Upload failed: " + response.status);
+          return;
+        }
+
+        const data = await response.json();
+
+        document.getElementById('summary').textContent = data.summary;
+        document.getElementById('log').textContent = data.log;
+        document.getElementById('forecast').textContent = data.forecast;
+        document.getElementById('plot').src = `${backendUrl}${data.plot_url}`;
+        document.getElementById('plot').style.display = 'block';
+
+      } catch (err) {
+        console.error("Unexpected upload error:", err);
+        alert("Upload failed: " + err.message);
+      }
     });
 
     document.getElementById('predictForm').addEventListener('submit', async function (e) {
@@ -56,15 +70,34 @@
       const formData = new FormData();
       formData.append('future_x', futureX);
 
-      const response = await fetch(`${backendUrl}/predict`, {
-        method: 'POST',
-        body: formData
-      });
+      try {
+        const response = await fetch(`${backendUrl}/predict`, {
+          method: 'POST',
+          body: formData
+        });
 
-      const data = await response.text();
-      document.getElementById('forecast').textContent = data;
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Predict error:", errorText);
+          alert("Prediction failed: " + response.status);
+          return;
+        }
+
+        const data = await response.json();
+
+        document.getElementById('forecast').textContent = 
+          typeof data.forecast === "string" 
+            ? data.forecast 
+            : JSON.stringify(data.forecast, null, 2);
+        document.getElementById('log').textContent = data.log;
+        document.getElementById('plot').src = `${backendUrl}${data.plot_url}`;
+        document.getElementById('plot').style.display = 'block';
+
+      } catch (err) {
+        console.error("Unexpected prediction error:", err);
+        alert("Prediction failed: " + err.message);
+      }
     });
   </script>
 </body>
 </html>
-
