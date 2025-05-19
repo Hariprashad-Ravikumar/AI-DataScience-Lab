@@ -1,31 +1,38 @@
 import os
 import io
+import sys
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import openai
-import sys
 from datetime import datetime
-from flask_cors import CORS
 
+# Initialize Flask app and set static folder
 app = Flask(__name__, static_folder="static")
-CORS(app, resources={r"/*": {"origins": "https://hariprashad-ravikumar.github.io"}})
 
+# Directories
 UPLOAD_FOLDER = "uploads"
 STATIC_FOLDER = "static"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
 
+# Capture logs
 log_stream = io.StringIO()
 
 def log_print(*args):
     print(*args, file=log_stream)
     sys.stdout.flush()
 
+# Serve the frontend
+@app.route("/")
+def index():
+    return send_from_directory(STATIC_FOLDER, "index.html")
+
+# Handle file upload
 @app.route("/upload", methods=["POST"])
 def upload_file():
     log_stream.truncate(0)
@@ -44,6 +51,7 @@ def upload_file():
     df.columns = ['X', 'Y']
     log_print("🔍 Cleaned Data:", df.head())
 
+    # Plot
     plt.figure()
     plt.scatter(df['X'], df['Y'])
     plt.xlabel('X')
@@ -53,6 +61,7 @@ def upload_file():
     plt.close()
     log_print("📊 Scatter plot saved.")
 
+    # Fit model
     df['X'] = pd.to_datetime(df['X'], errors='coerce')
     df.dropna(inplace=True)
     X = df['X'].map(pd.Timestamp.toordinal).values.reshape(-1, 1)
@@ -71,6 +80,7 @@ def upload_file():
     model.fit(X, y)
     log_print("🤖 Model trained.")
 
+    # OpenAI summary
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         client = openai.OpenAI(api_key=openai.api_key)
@@ -94,6 +104,7 @@ def upload_file():
         "plot_url": "/static/plot.png"
     })
 
+# Handle prediction
 @app.route("/predict", methods=["POST"])
 def predict():
     future_x = request.form.get("future_x")
@@ -149,5 +160,7 @@ def predict():
             "plot_url": None
         })
 
+# Launch the app
 if __name__ == "__main__":
+    print("✅ Flask app is starting on Azure...")
     app.run(host="0.0.0.0", port=80)
