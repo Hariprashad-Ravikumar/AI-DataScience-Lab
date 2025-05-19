@@ -11,14 +11,25 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import openai
 from datetime import datetime
+import tempfile
+import atexit
+
+# === CONFIG ===
+BACKEND_BASE_URL = "https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net"
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Directories
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Use a secure temporary directory
+TEMP_DIR = tempfile.TemporaryDirectory()
+UPLOAD_FOLDER = TEMP_DIR.name
+PLOT_PATH = os.path.join(UPLOAD_FOLDER, "plot.png")
+
+# Cleanup temp directory on shutdown
+@atexit.register
+def cleanup_temp_dir():
+    TEMP_DIR.cleanup()
 
 # Capture logs
 log_stream = io.StringIO()
@@ -57,7 +68,7 @@ def upload_file():
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Scatter Plot')
-    plt.savefig("plot.png")
+    plt.savefig(PLOT_PATH)
     plt.close()
     log_print("📊 Scatter plot saved.")
 
@@ -101,13 +112,13 @@ def upload_file():
         "summary": summary,
         "log": log_stream.getvalue(),
         "forecast": "Submit future x-values below to get predictions.",
-        "plot_url": request.url_root + "plot.png"
+        "plot_url": f"{BACKEND_BASE_URL}/plot.png"
     })
 
 # Serve the generated plot
 @app.route("/plot.png")
 def serve_plot():
-    return send_file("plot.png", mimetype="image/png")
+    return send_file(PLOT_PATH, mimetype="image/png")
 
 # Handle prediction requests
 @app.route("/predict", methods=["POST"])
@@ -132,8 +143,14 @@ def predict():
         })
 
     try:
-        filename = os.listdir(UPLOAD_FOLDER)[0]
-        df = pd.read_csv(os.path.join(UPLOAD_FOLDER, filename))
+        files = os.listdir(UPLOAD_FOLDER)
+        if not files:
+            raise FileNotFoundError("No uploaded file found.")
+        latest_file = max(
+            [os.path.join(UPLOAD_FOLDER, f) for f in files if f.endswith(".csv")],
+            key=os.path.getctime
+        )
+        df = pd.read_csv(latest_file)
         df.dropna(inplace=True)
         df.columns = ['X', 'Y']
         df['X'] = pd.to_datetime(df['X'], errors='coerce')
@@ -154,7 +171,7 @@ def predict():
         return jsonify({
             "forecast": result,
             "log": log_stream.getvalue(),
-            "plot_url": request.url_root + "plot.png"
+            "plot_url": f"{BACKEND_BASE_URL}/plot.png"
         })
 
     except Exception as e:
