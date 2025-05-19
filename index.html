@@ -3,38 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Data Science Backend</title>
+  <title>AI Data Science Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    pre {
+      background-color: #f4f4f4;
+      padding: 12px;
+      border-left: 4px solid #ccc;
+      overflow-x: auto;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>📈 AI Data Science App</h1>
+  <h1>AI Data Science Forecasting Tool</h1>
 
-  <form id="uploadForm">
-    <label for="fileInput">Upload CSV File:</label>
-    <input type="file" id="fileInput" name="file" required />
-    <button type="submit">Upload</button>
-  </form>
+  <div class="section">
+    <form id="uploadForm">
+      <label for="fileInput">Upload CSV File</label>
+      <input type="file" id="fileInput" name="file" required />
+      <button type="submit">Upload</button>
+    </form>
+  </div>
 
-  <form id="predictForm">
-    <label for="futureInput">Enter future dates (YYYY-MM-DD, comma-separated):</label>
-    <input type="text" id="futureInput" name="future_x" />
-    <button type="submit">Predict</button>
-  </form>
+  <div class="section">
+    <h3>Processing Log</h3>
+    <pre id="log"></pre>
+  </div>
 
-  <h3>🧠 Summary:</h3>
-  <pre id="summary"></pre>
+  <div class="section">
+    <h3>Data Summary</h3>
+    <pre id="summary"></pre>
+  </div>
 
-  <h3>🔍 Logs:</h3>
-  <pre id="log"></pre>
+  <div class="section">
+    <h3>Visualization</h3>
+    <img id="plot" style="display:none;" alt="Scatter Plot" />
+  </div>
 
-  <h3>🔮 Forecast:</h3>
-  <pre id="forecast"></pre>
+  <div class="section">
+    <form id="predictForm">
+      <label for="futureInput">Enter future dates (YYYY-MM-DD, comma-separated)</label>
+      <input type="text" id="futureInput" name="future_x" placeholder="e.g., 2025-12-01, 2025-12-15" />
+      <button type="submit">Predict</button>
+    </form>
+  </div>
 
-  <h3>📊 Plot:</h3>
-  <img id="plot" style="display:none; max-width:600px;" />
+  <div class="section">
+    <h3>Forecast Result</h3>
+    <pre id="forecast"></pre>
+  </div>
+
+  <div class="footer">
+    Learn more about this ongoing project on 
+    <a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">GitHub</a>.
+  </div>
 
   <script>
-    // Paste your full JavaScript code here (what you already sent)
-    // No change needed
     document.getElementById('uploadForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const formData = new FormData();
