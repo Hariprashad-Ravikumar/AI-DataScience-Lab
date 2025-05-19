@@ -160,7 +160,4 @@ def predict():
             "plot_url": None
         })
 
-# Launch the app
-if __name__ == "__main__":
-    print("✅ Flask app is starting on Azure...")
-    app.run(host="0.0.0.0", port=80)
+
