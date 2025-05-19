@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Data Science Backend</title>
+</head>
+<body>
+  <h1>📈 AI Data Science App</h1>
+
+  <form id="uploadForm">
+    <label for="fileInput">Upload CSV File:</label>
+    <input type="file" id="fileInput" name="file" required />
+    <button type="submit">Upload</button>
+  </form>
+
+  <form id="predictForm">
+    <label for="futureInput">Enter future dates (YYYY-MM-DD, comma-separated):</label>
+    <input type="text" id="futureInput" name="future_x" />
+    <button type="submit">Predict</button>
+  </form>
+
+  <h3>🧠 Summary:</h3>
+  <pre id="summary"></pre>
+
+  <h3>🔍 Logs:</h3>
+  <pre id="log"></pre>
+
+  <h3>🔮 Forecast:</h3>
+  <pre id="forecast"></pre>
+
+  <h3>📊 Plot:</h3>
+  <img id="plot" style="display:none; max-width:600px;" />
+
+  <script>
+    // Paste your full JavaScript code here (what you already sent)
+    // No change needed
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('file', document.getElementById('fileInput').files[0]);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Upload error:", errorText);
+          alert("Upload failed: " + response.status);
+          return;
+        }
+
+        const data = await response.json();
+        document.getElementById('summary').textContent = data.summary;
+        document.getElementById('log').textContent = data.log;
+        document.getElementById('forecast').textContent = data.forecast;
+        document.getElementById('plot').src = data.plot_url;
+        document.getElementById('plot').style.display = 'block';
+
+      } catch (err) {
+        console.error("Unexpected upload error:", err);
+        alert("Upload failed: " + err.message);
+      }
+    });
+
+    document.getElementById('predictForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const futureX = document.getElementById('futureInput').value;
+
+      const formData = new FormData();
+      formData.append('future_x', futureX);
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Predict error:", errorText);
+          alert("Prediction failed: " + response.status);
+          return;
+        }
+
+        const data = await response.json();
+        document.getElementById('forecast').textContent =
+          typeof data.forecast === "string"
+            ? data.forecast
+            : JSON.stringify(data.forecast, null, 2);
+        document.getElementById('log').textContent = data.log;
+        document.getElementById('plot').src = data.plot_url;
+        document.getElementById('plot').style.display = 'block';
+
+      } catch (err) {
+        console.error("Unexpected prediction error:", err);
+        alert("Prediction failed: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
