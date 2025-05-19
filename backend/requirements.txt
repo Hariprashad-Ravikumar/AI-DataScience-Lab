@@ -3,4 +3,5 @@ flask-cors
 pandas
 matplotlib
 scikit-learn
-openai
+openai>=1.10.0
+
