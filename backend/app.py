@@ -5,20 +5,20 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import openai
 from datetime import datetime
 
-# Initialize Flask app and set static folder
-app = Flask(__name__, static_folder="static")
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Directories
 UPLOAD_FOLDER = "uploads"
-STATIC_FOLDER = "static"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(STATIC_FOLDER, exist_ok=True)
 
 # Capture logs
 log_stream = io.StringIO()
@@ -27,12 +27,12 @@ def log_print(*args):
     print(*args, file=log_stream)
     sys.stdout.flush()
 
-# Serve the frontend
+# Root route for health check
 @app.route("/")
 def index():
-    return send_from_directory(STATIC_FOLDER, "index.html")
+    return jsonify({"message": "✅ AI DataScience Backend is running on Azure."})
 
-# Handle file upload
+# Handle file upload and processing
 @app.route("/upload", methods=["POST"])
 def upload_file():
     log_stream.truncate(0)
@@ -57,7 +57,7 @@ def upload_file():
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Scatter Plot')
-    plt.savefig(f"{STATIC_FOLDER}/plot.png")
+    plt.savefig("plot.png")
     plt.close()
     log_print("📊 Scatter plot saved.")
 
@@ -101,10 +101,15 @@ def upload_file():
         "summary": summary,
         "log": log_stream.getvalue(),
         "forecast": "Submit future x-values below to get predictions.",
-        "plot_url": "/static/plot.png"
+        "plot_url": request.url_root + "plot.png"
     })
 
-# Handle prediction
+# Serve the generated plot
+@app.route("/plot.png")
+def serve_plot():
+    return send_file("plot.png", mimetype="image/png")
+
+# Handle prediction requests
 @app.route("/predict", methods=["POST"])
 def predict():
     future_x = request.form.get("future_x")
@@ -149,7 +154,7 @@ def predict():
         return jsonify({
             "forecast": result,
             "log": log_stream.getvalue(),
-            "plot_url": "/static/plot.png"
+            "plot_url": request.url_root + "plot.png"
         })
 
     except Exception as e:
@@ -159,5 +164,3 @@ def predict():
             "log": log_stream.getvalue(),
             "plot_url": None
         })
-
-
