@@ -1,7 +1,8 @@
 flask
-gunicorn
+flask-cors
 pandas
 matplotlib
 scikit-learn
+numpy
 openai
-
+gunicorn
