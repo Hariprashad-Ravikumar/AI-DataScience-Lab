@@ -3,20 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Data Science Application</title>
+  <title>AI DataScience Lab</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 40px auto;
       padding: 0 20px;
-      line-height: 1.6;
       color: #333;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: normal;
+      font-size: 18px;
+      margin-top: 0;
+      color: #666;
     }
 
     form {
@@ -48,6 +55,8 @@
       padding: 12px;
       border-left: 4px solid #ccc;
       overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     img {
@@ -74,7 +83,8 @@
   </style>
 </head>
 <body>
-  <h1>AI Data Science Forecasting Tool</h1>
+  <h1>AI-DataScience-Lab</h1>
+  <h2>Data Summary (using OpenAI API)</h2>
 
   <div class="section">
     <form id="uploadForm">
@@ -86,7 +96,7 @@
 
   <div class="section">
     <h3>Processing Log</h3>
-    <pre id="log"></pre>
+    <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
   </div>
 
   <div class="section">
@@ -138,7 +148,7 @@
 
         const data = await response.json();
         document.getElementById('summary').textContent = data.summary;
-        document.getElementById('log').textContent = data.log;
+        document.getElementById('log').textContent = "Loading modules: pandas, scikit-learn, matplotlib...\n\n" + data.log;
         document.getElementById('forecast').textContent = data.forecast;
         document.getElementById('plot').src = data.plot_url;
         document.getElementById('plot').style.display = 'block';
@@ -174,7 +184,7 @@
           typeof data.forecast === "string"
             ? data.forecast
             : JSON.stringify(data.forecast, null, 2);
-        document.getElementById('log').textContent = data.log;
+        document.getElementById('log').textContent = "Loading modules: pandas, scikit-learn, matplotlib...\n\n" + data.log;
         document.getElementById('plot').src = data.plot_url;
         document.getElementById('plot').style.display = 'block';
 
