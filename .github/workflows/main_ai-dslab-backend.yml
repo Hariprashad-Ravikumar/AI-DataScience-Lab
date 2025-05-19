@@ -1,6 +1,5 @@
 name: Build and deploy Python app to Azure Web App - ai-dslab-backend
 
-
 on:
   push:
     branches:
