@@ -21,7 +21,7 @@
       100% {background-position: 0% 50%;}
     }
 
-    h1, h2, h3, label {
+    h1, h3, label {
       text-align: center;
       color: #f1f1f1;
     }
@@ -30,11 +30,19 @@
       font-weight: normal;
       font-size: 16px;
       color: #ccc;
+      text-align: center;
     }
 
     .section {
       margin: 30px auto;
       text-align: center;
+    }
+
+    .section-left {
+      max-width: 800px;
+      margin: 30px auto;
+      text-align: left;
+      padding: 0 20px;
     }
 
     form {
@@ -95,19 +103,24 @@
     .green { background-color: #4CAF50; }
     .blue { background-color: #2196F3; }
 
-    pre, img {
-      padding: 12px;
-      background: #f8f8f8;
-      color: #000;
-      border-radius: 5px;
-      max-width: 90%;
-      margin: auto;
+    .output-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border: 1px solid #66d9ef;
+      border-radius: 8px;
+      color: #e0f7fa;
+      font-size: 14px;
+      font-family: monospace;
+      white-space: pre-wrap;
       overflow-x: auto;
+      max-width: 100%;
     }
 
     img {
       display: block;
       max-width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
     }
 
     .hidden {
@@ -121,9 +134,40 @@
       margin-top: 60px;
     }
 
-    .footer a {
+    .footer a, a {
       color: #66d9ef;
       text-decoration: none;
+    }
+
+    .dropdown-label {
+      text-align: left;
+      margin-left: 20px;
+      font-weight: bold;
+    }
+
+    .more-note {
+      font-size: 12px;
+      color: #aaa;
+      text-align: left;
+      margin-left: 20px;
+      font-style: italic;
+    }
+
+    .description {
+      text-align: left;
+      max-width: 800px;
+      margin: 0 auto 20px;
+      padding: 0 20px;
+      color: #ddd;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: -5px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -132,7 +176,12 @@
   <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
   <h2>(<a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">View source code on Hari's GitHub</a>)</h2>
 
-  <!-- Upload description -->
+  <!-- Description -->
+  <div class="description">
+    Upload your dataset to receive intelligent insights powered by AI. Our tool cleans your data, builds a predictive model, and explains the trends using OpenAI. Visualizations and downloadable reports included.
+  </div>
+
+  <!-- Upload -->
   <div class="section">
     <h3>Upload your data file to get forecast using AI</h3>
     <form id="uploadForm">
@@ -154,34 +203,36 @@
   </div>
 
   <!-- Model selection -->
-  <div class="section">
-    <h3>Choose Regression</h3>
+  <div class="section-left">
+    <label class="dropdown-label">Choose Regression</label>
     <select id="regressionModel" name="model" disabled>
-      <option value="linear">Linear Regression (More models soon...)</option>
+      <option value="linear">Linear Regression</option>
     </select>
+    <div class="more-note">(more...)</div>
   </div>
 
   <!-- Processing results -->
   <div id="processingResults" class="hidden">
-    <div class="section">
+    <div class="section-left">
       <h3>Processing Log</h3>
-      <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
+      <div class="output-box" id="log">Loading modules: pandas, scikit-learn, matplotlib...</div>
     </div>
-    <div class="section">
+    <div class="section-left">
       <h3>Data Summary (by OpenAI GPT-3.5 API)</h3>
-      <pre id="summary" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+      <div class="output-box" id="summary" style="max-height: 200px; overflow-y: auto;"></div>
     </div>
-    <div class="section">
+    <div class="section-left">
       <h3>Model Performance</h3>
-      <pre id="metrics"></pre>
+      <div class="output-box" id="metrics"></div>
     </div>
-    <div class="section">
+    <div class="section-left">
       <h3>Scatter Plot</h3>
       <img id="plot" style="display:none;" alt="Scatter Plot" />
     </div>
     <div class="section">
       <form id="predictForm">
         <label for="futureInput">Enter future values (comma-separated)</label>
+        <div class="note">Example: 2025-12-01, 2025-12-02, ... or 11, 12, 13</div>
         <input type="text" id="futureInput" name="future_x" />
         <button type="submit">Predict</button>
         <div id="predictProgress" class="progress-bar"><div class="progress-fill blue" id="predictFill"></div></div>
@@ -191,11 +242,11 @@
 
   <!-- Forecast results -->
   <div id="forecastResults" class="hidden">
-    <div class="section">
+    <div class="section-left">
       <h3>Forecast Result</h3>
-      <pre id="forecast"></pre>
+      <div class="output-box" id="forecast"></div>
     </div>
-    <div class="section">
+    <div class="section-left">
       <h3>Forecast Visualization</h3>
       <img id="forecastPlot" style="display:none;" alt="Forecast Plot" />
     </div>
@@ -279,6 +330,7 @@
       processFill.style.width = '100%';
       setTimeout(() => document.getElementById('processProgress').style.display = 'none', 500);
 
+      document.getElementById('regressionModel').disabled = false;
       processingResults.classList.remove('hidden');
       document.getElementById('summary').textContent = data.summary || '';
       document.getElementById('log').textContent = data.log || '';
