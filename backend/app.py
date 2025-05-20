@@ -50,7 +50,10 @@ def generate_pdf_report(summary, r2, mse, forecast_dict):
     text = c.beginText(1 * inch, height - 1 * inch)
 
     text.setFont("Helvetica-Bold", 14)
-    text.textLine("AI Forecast Report")
+    text.textLine("AI-DataScience-Lab Report")
+    text.textLine("Created by Hariprashad Ravikumar")
+    text.textLine("https://github.com/Hariprashad-Ravikumar")
+    text.textLine("")
     text.setFont("Helvetica", 10)
     text.textLine(f"Model: Linear Regression")
     text.textLine(f"R² Score: {r2:.4f}")
