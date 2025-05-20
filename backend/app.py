@@ -14,6 +14,7 @@ import openai
 from datetime import datetime
 import tempfile
 import atexit
+import textwrap
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
@@ -42,6 +43,7 @@ def log_print(*args):
     print(*args, file=log_stream)
     sys.stdout.flush()
 
+# ========== PDF REPORT ==========
 def generate_pdf_report(summary, r2, mse, forecast_dict):
     c = canvas.Canvas(REPORT_PATH, pagesize=letter)
     width, height = letter
@@ -59,7 +61,8 @@ def generate_pdf_report(summary, r2, mse, forecast_dict):
     text.textLine("OpenAI Data Summary:")
     text.setFont("Helvetica", 9)
     for line in summary.splitlines():
-        text.textLine(line)
+        for wrapped in textwrap.wrap(line, width=100):
+            text.textLine(wrapped)
 
     text.textLine("")
     text.setFont("Helvetica-Bold", 12)
@@ -72,6 +75,32 @@ def generate_pdf_report(summary, r2, mse, forecast_dict):
     if os.path.exists(FORECAST_PLOT_PATH):
         c.drawImage(FORECAST_PLOT_PATH, 1 * inch, 1 * inch, width=5.5 * inch, preserveAspectRatio=True)
     c.save()
+
+# ========== FORECAST PLOT ==========
+def plot_forecast_with_axis(X, y, model, values_parsed, y_future, use_dates):
+    x_min, x_max = min(X.min(), values_parsed.min()), max(X.max(), values_parsed.max())
+    x_plot = np.linspace(x_min, x_max, 200).reshape(-1, 1)
+    y_plot = model.predict(x_plot)
+
+    plt.figure()
+    plt.scatter(X, y, label='Training Data', alpha=0.6)
+    plt.plot(x_plot, y_plot, color='blue', label='Linear Regression')
+    plt.scatter(values_parsed, y_future, color='red', label='Forecast', marker='x')
+    plt.legend()
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Forecast with Linear Regression')
+
+    if use_dates:
+        ticks = np.linspace(x_min, x_max, 6)
+        labels = [datetime.fromordinal(int(t)).strftime('%Y-%m-%d') for t in ticks]
+        plt.xticks(ticks, labels, rotation=45)
+
+    plt.tight_layout()
+    plt.savefig(FORECAST_PLOT_PATH)
+    plt.close()
+
+# ========== ROUTES ==========
 
 @app.route("/get-columns", methods=["POST"])
 def get_columns():
@@ -105,8 +134,9 @@ def upload_file():
 
     df = df[[x_col, y_col]].dropna()
     df.columns = ['X', 'Y']
-    log_print("Cleaned Data:\n\n", df.head())
+    log_print("Data Cleaned using Pandas:\n\n Printing Header:\n", df.head())
 
+    # Plot original data
     plt.figure()
     plt.scatter(df['X'], df['Y'])
     plt.xlabel('X')
@@ -129,7 +159,7 @@ def upload_file():
     y_pred = model.predict(X)
     r2 = r2_score(y, y_pred)
     mse = mean_squared_error(y, y_pred)
-    log_print(f"Model Trained. R² = {r2:.4f}, MSE = {mse:.4f}")
+    log_print(f"\n\n Model Trained with Scikit-Learn: \n R² = {r2:.4f}, MSE = {mse:.4f}")
 
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -191,21 +221,7 @@ def predict():
         for x, p in zip(values_parsed.flatten(), y_future)
     }
 
-    x_min, x_max = min(X.min(), values_parsed.min()), max(X.max(), values_parsed.max())
-    x_plot = np.linspace(x_min, x_max, 200).reshape(-1, 1)
-    y_plot = model.predict(x_plot)
-
-    plt.figure()
-    plt.scatter(X, y, label='Training Data', alpha=0.6)
-    plt.plot(x_plot, y_plot, color='blue', label='Regression Line')
-    plt.scatter(values_parsed, y_future, color='red', label='Forecast', marker='x')
-    plt.legend()
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Forecast with Regression Line')
-    plt.savefig(FORECAST_PLOT_PATH)
-    plt.close()
-
+    plot_forecast_with_axis(X, y, model, values_parsed, y_future, use_dates)
     generate_pdf_report(cached_summary, r2_score(y, model.predict(X)), mean_squared_error(y, model.predict(X)), result)
 
     return jsonify({
