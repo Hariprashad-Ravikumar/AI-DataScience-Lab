@@ -7,40 +7,56 @@
   <style>
     body {
       margin: 0;
-      padding: 40px 0;
+      padding: 40px;
       font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      background: linear-gradient(-45deg, #1b2735, #2c5364, #0f2027, #203a43);
-      background-size: 400% 400%;
-      animation: gradientBG 20s ease infinite;
+      background: #f4f7f9;
+      color: #333;
     }
 
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    h1, h2, h3, label {
+    h1, h2 {
       text-align: center;
-      color: #f1f1f1;
+      margin-bottom: 5px;
     }
 
     h2 {
       font-weight: normal;
       font-size: 16px;
-      color: #ccc;
+      color: #555;
+    }
+
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .description {
+      text-align: center;
+      margin-top: 20px;
     }
 
     .section {
-      margin: 30px auto;
-      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .section.visible {
+      opacity: 1;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      max-width: 300px;
+      margin-left: 0;
     }
 
     label {
@@ -50,39 +66,37 @@
     input[type="file"],
     input[type="text"],
     select {
-      width: 200px;
       margin-bottom: 10px;
       padding: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 14px;
-      background-color: #fff;
-      color: #000;
+      width: 100%;
     }
 
     button {
+      width: fit-content;
       padding: 8px 16px;
-      margin: 5px 0;
+      margin-bottom: 10px;
       border-radius: 6px;
       border: none;
-      background-color: #00bcd4;
+      background-color: #0056d2;
       color: white;
-      cursor: pointer;
       font-size: 14px;
+      cursor: pointer;
     }
 
     button:hover {
-      background-color: #0097a7;
+      background-color: #0041a8;
     }
 
     .progress-bar {
-      width: 200px;
+      width: 100%;
       height: 8px;
       background-color: #eee;
       border-radius: 4px;
       overflow: hidden;
-      margin-top: 5px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       display: none;
     }
 
@@ -95,91 +109,85 @@
     .green { background-color: #4CAF50; }
     .blue { background-color: #2196F3; }
 
-    pre, img {
+    pre {
+      white-space: pre-wrap;
+      background: #f9f9f9;
       padding: 12px;
-      background: #f8f8f8;
-      color: #000;
-      border-radius: 5px;
-      max-width: 90%;
-      margin: auto;
+      border-radius: 6px;
+      border: 1px solid #ddd;
       overflow-x: auto;
+      font-size: 14px;
     }
 
     img {
-      display: block;
       max-width: 100%;
-    }
-
-    .hidden {
-      display: none;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
     }
 
     .footer {
       text-align: center;
-      font-size: 13px;
-      color: #ccc;
-      margin-top: 60px;
+      font-size: 14px;
+      color: #777;
+      margin-top: 50px;
     }
 
     .footer a {
-      color: #66d9ef;
+      color: #0056d2;
       text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <h1>AI-DataScience-Lab</h1>
-  <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
-  <h2>(<a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">View source code on Hari's GitHub</a>)</h2>
+  <div class="container">
+    <h1>AI-DataScience-Lab</h1>
+    <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
+    <h2>(<a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">View source code on Hari's GitHub</a>)</h2>
 
-  <!-- Upload description -->
-  <div class="section">
-    <h3>Upload your data file to get forecast using AI</h3>
-    <form id="uploadForm">
-      <label for="fileInput">Choose CSV File</label>
-      <input type="file" id="fileInput" name="file" required />
+    <div class="description">
+      <h3>Upload your data file to get forecast using AI</h3>
+    </div>
 
-      <button id="loadColumnsBtn" type="button">Upload</button>
-      <div id="uploadProgress" class="progress-bar"><div class="progress-fill green" id="uploadFill"></div></div>
+    <div class="section visible">
+      <form id="uploadForm">
+        <label for="fileInput">Choose CSV File</label>
+        <input type="file" id="fileInput" name="file" required />
 
-      <label for="xColumn" class="hidden">X Column</label>
-      <select id="xColumn" name="x_column" class="hidden"></select>
+        <button id="loadColumnsBtn" type="button">Upload</button>
+        <div id="uploadProgress" class="progress-bar"><div class="progress-fill green" id="uploadFill"></div></div>
 
-      <label for="yColumn" class="hidden">Y Column</label>
-      <select id="yColumn" name="y_column" class="hidden"></select>
+        <label for="xColumn" class="hidden">X Column</label>
+        <select id="xColumn" name="x_column" class="hidden"></select>
 
-      <button id="submitProcessing" class="hidden" type="submit">Submit for Processing</button>
-      <div id="processProgress" class="progress-bar"><div class="progress-fill green" id="processFill"></div></div>
-    </form>
-  </div>
+        <label for="yColumn" class="hidden">Y Column</label>
+        <select id="yColumn" name="y_column" class="hidden"></select>
 
-  <!-- Model selection -->
-  <div class="section">
-    <h3>Choose Regression</h3>
-    <select id="regressionModel" name="model" disabled>
-      <option value="linear">Linear Regression (More models soon...)</option>
-    </select>
-  </div>
+        <button id="submitProcessing" class="hidden" type="submit">Submit for Processing</button>
+        <div id="processProgress" class="progress-bar"><div class="progress-fill green" id="processFill"></div></div>
+      </form>
+    </div>
 
-  <!-- Processing results -->
-  <div id="processingResults" class="hidden">
-    <div class="section">
+    <div class="section visible">
+      <h3>Choose Regression</h3>
+      <select id="regressionModel" name="model" disabled>
+        <option value="linear">Linear Regression (More models soon...)</option>
+      </select>
+    </div>
+
+    <div id="processingResults" class="section">
       <h3>Processing Log</h3>
       <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
-    </div>
-    <div class="section">
+
       <h3>Data Summary (by OpenAI GPT-3.5 API)</h3>
-      <pre id="summary" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
-    </div>
-    <div class="section">
+      <pre id="summary"></pre>
+
       <h3>Model Performance</h3>
       <pre id="metrics"></pre>
-    </div>
-    <div class="section">
+
       <h3>Scatter Plot</h3>
       <img id="plot" style="display:none;" alt="Scatter Plot" />
-    </div>
-    <div class="section">
+
       <form id="predictForm">
         <label for="futureInput">Enter future values (comma-separated)</label>
         <input type="text" id="futureInput" name="future_x" />
@@ -187,52 +195,47 @@
         <div id="predictProgress" class="progress-bar"><div class="progress-fill blue" id="predictFill"></div></div>
       </form>
     </div>
-  </div>
 
-  <!-- Forecast results -->
-  <div id="forecastResults" class="hidden">
-    <div class="section">
+    <div id="forecastResults" class="section">
       <h3>Forecast Result</h3>
       <pre id="forecast"></pre>
-    </div>
-    <div class="section">
+
       <h3>Forecast Visualization</h3>
       <img id="forecastPlot" style="display:none;" alt="Forecast Plot" />
-    </div>
-    <div class="section">
+
       <a href="https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/download-report" target="_blank">
         <button>Download PDF Report</button>
       </a>
     </div>
+
+    <div class="footer">
+      &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
+      <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a> · 
+      <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a>
+    </div>
   </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
-    <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a> · 
-    <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a>
-  </div>
-
-  <!-- JavaScript -->
   <script>
-    const fileInput = document.getElementById('fileInput');
     const xColumn = document.getElementById('xColumn');
     const yColumn = document.getElementById('yColumn');
-    const uploadFill = document.getElementById('uploadFill');
-    const processFill = document.getElementById('processFill');
-    const predictFill = document.getElementById('predictFill');
+    const log = document.getElementById('log');
+    const summary = document.getElementById('summary');
+    const metrics = document.getElementById('metrics');
+    const plot = document.getElementById('plot');
+    const forecast = document.getElementById('forecast');
+    const forecastPlot = document.getElementById('forecastPlot');
     const processingResults = document.getElementById('processingResults');
     const forecastResults = document.getElementById('forecastResults');
 
     document.getElementById('loadColumnsBtn').addEventListener('click', async () => {
-      const file = fileInput.files[0];
-      if (!file) return alert("Please select a CSV file.");
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert("Please choose a file first.");
+
+      document.getElementById('uploadProgress').style.display = 'block';
+      document.getElementById('uploadFill').style.width = '30%';
 
       const formData = new FormData();
       formData.append('file', file);
-
-      document.getElementById('uploadProgress').style.display = 'block';
-      uploadFill.style.width = '30%';
 
       const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/get-columns', {
         method: 'POST',
@@ -240,7 +243,6 @@
       });
 
       const data = await res.json();
-      if (!data.columns) return alert("Failed to load columns.");
 
       xColumn.innerHTML = yColumn.innerHTML = '';
       data.columns.forEach(col => {
@@ -254,7 +256,7 @@
       yColumn.previousElementSibling.classList.remove('hidden');
       document.getElementById('submitProcessing').classList.remove('hidden');
 
-      uploadFill.style.width = '100%';
+      document.getElementById('uploadFill').style.width = '100%';
       setTimeout(() => document.getElementById('uploadProgress').style.display = 'none', 500);
     });
 
@@ -262,13 +264,13 @@
       e.preventDefault();
 
       const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+      formData.append('file', document.getElementById('fileInput').files[0]);
       formData.append('x_column', xColumn.value);
       formData.append('y_column', yColumn.value);
       formData.append('model', 'linear');
 
       document.getElementById('processProgress').style.display = 'block';
-      processFill.style.width = '20%';
+      document.getElementById('processFill').style.width = '20%';
 
       const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/upload', {
         method: 'POST',
@@ -276,15 +278,17 @@
       });
 
       const data = await res.json();
-      processFill.style.width = '100%';
+
+      document.getElementById('processFill').style.width = '100%';
       setTimeout(() => document.getElementById('processProgress').style.display = 'none', 500);
 
-      processingResults.classList.remove('hidden');
-      document.getElementById('summary').textContent = data.summary || '';
-      document.getElementById('log').textContent = data.log || '';
-      document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
-      document.getElementById('plot').src = data.plot_url;
-      document.getElementById('plot').style.display = 'block';
+      summary.textContent = data.summary || '';
+      log.textContent = data.log || '';
+      metrics.textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
+      plot.src = data.plot_url;
+      plot.style.display = 'block';
+
+      processingResults.classList.add('visible');
     });
 
     document.getElementById('predictForm').addEventListener('submit', async (e) => {
@@ -296,7 +300,7 @@
       formData.append('y_column', yColumn.value);
 
       document.getElementById('predictProgress').style.display = 'block';
-      predictFill.style.width = '30%';
+      document.getElementById('predictFill').style.width = '30%';
 
       const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/predict', {
         method: 'POST',
@@ -304,15 +308,17 @@
       });
 
       const data = await res.json();
-      predictFill.style.width = '100%';
+
+      document.getElementById('predictFill').style.width = '100%';
       setTimeout(() => document.getElementById('predictProgress').style.display = 'none', 500);
 
-      forecastResults.classList.remove('hidden');
-      document.getElementById('forecast').textContent = typeof data.forecast === "string"
+      forecast.textContent = typeof data.forecast === "string"
         ? data.forecast
         : JSON.stringify(data.forecast, null, 2);
-      document.getElementById('forecastPlot').src = data.forecast_plot_url + '?t=' + new Date().getTime();
-      document.getElementById('forecastPlot').style.display = 'block';
+      forecastPlot.src = data.forecast_plot_url + '?t=' + new Date().getTime();
+      forecastPlot.style.display = 'block';
+
+      forecastResults.classList.add('visible');
     });
   </script>
 </body>
