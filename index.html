@@ -21,8 +21,13 @@
       100% {background-position: 0% 50%;}
     }
 
-    h1, h3, label {
+    h1, label {
       text-align: center;
+      color: #f1f1f1;
+    }
+
+    h3 {
+      text-align: left;
       color: #f1f1f1;
     }
 
@@ -169,6 +174,18 @@
       margin-top: -5px;
       margin-bottom: 10px;
     }
+    .fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   </style>
 </head>
 <body>
@@ -176,14 +193,10 @@
   <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
   <h2>(<a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">View source code on Hari's GitHub</a>)</h2>
 
-  <!-- Description -->
-  <div class="description">
-    Upload your dataset to receive intelligent insights powered by AI. Our tool cleans your data, builds a predictive model, and explains the trends using OpenAI. Visualizations and downloadable reports included.
-  </div>
 
   <!-- Upload -->
   <div class="section">
-    <h3>Upload your data file to get forecast using AI</h3>
+    <h3>Upload your dataset to receive intelligent insights powered by AI. Our tool cleans your data, builds a predictive model, and explains the trends using OpenAI. Visualizations and downloadable reports included.</h3>
     <form id="uploadForm">
       <label for="fileInput">Choose CSV File</label>
       <input type="file" id="fileInput" name="file" required />
@@ -208,7 +221,7 @@
     <select id="regressionModel" name="model" disabled>
       <option value="linear">Linear Regression</option>
     </select>
-    <div class="more-note">(more...)</div>
+    <div class="more-note">(More regression models coming in v2)</div>
   </div>
 
   <!-- Processing results -->
@@ -259,6 +272,7 @@
 
   <!-- Footer -->
   <div class="footer">
+    <small style="color:#aaa;">App Version: 1.0.0 (Beta)</small>
     &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
     <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a> · 
     <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a>
@@ -332,6 +346,7 @@
 
       document.getElementById('regressionModel').disabled = false;
       processingResults.classList.remove('hidden');
+      processingResults.classList.add('fade-in');
       document.getElementById('summary').textContent = data.summary || '';
       document.getElementById('log').textContent = data.log || '';
       document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
@@ -360,6 +375,7 @@
       setTimeout(() => document.getElementById('predictProgress').style.display = 'none', 500);
 
       forecastResults.classList.remove('hidden');
+      forecastResults.classList.add('fade-in');
       document.getElementById('forecast').textContent = typeof data.forecast === "string"
         ? data.forecast
         : JSON.stringify(data.forecast, null, 2);
