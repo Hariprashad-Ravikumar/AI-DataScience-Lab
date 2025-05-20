@@ -22,7 +22,7 @@
 <body>
   <h1>AI-DataScience-Lab</h1>
   <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
-  <h3><a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank" style="font-weight: normal; font-size: 16px;">View source code and documentation on GitHub</a></h3>
+  <h2>(View source code on Hari's <a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank" style="font-weight: normal; font-size: 16px;">GitHub</a>)</h2>
 
   <div class="section">
     <form id="uploadForm">
@@ -134,26 +134,34 @@
       progressFill.style.width = '100%';
       setTimeout(() => progressBar.style.display = 'none', 500);
     });
+document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('x_column', xColumn.value);
+  formData.append('y_column', yColumn.value);
+  formData.append('model', 'linear');
 
-    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-      formData.append('x_column', xColumn.value);
-      formData.append('y_column', yColumn.value);
+  // Show and reset progress bar
+  progressBar.style.display = 'block';
+  progressFill.style.width = '20%';
 
-      const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/upload', {
-        method: 'POST',
-        body: formData
-      });
+  const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/upload', {
+    method: 'POST',
+    body: formData
+  });
 
-      const data = await response.json();
-      document.getElementById('summary').textContent = data.summary || '';
-      document.getElementById('log').textContent = data.log || '';
-      document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
-      document.getElementById('plot').src = data.plot_url;
-      document.getElementById('plot').style.display = 'block';
-    });
+  const data = await response.json();
+  progressFill.style.width = '100%';
+  setTimeout(() => progressBar.style.display = 'none', 500);
+
+  document.getElementById('summary').textContent = data.summary || '';
+  document.getElementById('log').textContent = data.log || '';
+  document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
+  document.getElementById('plot').src = data.plot_url;
+  document.getElementById('plot').style.display = 'block';
+});
+
 
     document.getElementById('predictForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -174,5 +182,10 @@
       document.getElementById('forecastPlot').style.display = 'block';
     });
   </script>
+  <div class="footer" style="text-align: center; font-size: 14px; margin-top: 40px; color: #666;">
+  &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
+  <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a> · 
+  <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a>
+</div>
 </body>
 </html>
