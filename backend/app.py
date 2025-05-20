@@ -43,7 +43,7 @@ def log_print(*args):
     print(*args, file=log_stream)
     sys.stdout.flush()
 
-# ========== PDF REPORT ==========
+# === PDF REPORT GENERATOR ===
 def generate_pdf_report(summary, r2, mse, forecast_dict):
     c = canvas.Canvas(REPORT_PATH, pagesize=letter)
     width, height = letter
@@ -79,13 +79,13 @@ def generate_pdf_report(summary, r2, mse, forecast_dict):
         c.drawImage(FORECAST_PLOT_PATH, 1 * inch, 1 * inch, width=5.5 * inch, preserveAspectRatio=True)
     c.save()
 
-# ========== FORECAST PLOT ==========
+# === PLOT FORECAST (READABLE X) ===
 def plot_forecast_with_axis(X, y, model, values_parsed, y_future, use_dates):
     x_min, x_max = min(X.min(), values_parsed.min()), max(X.max(), values_parsed.max())
     x_plot = np.linspace(x_min, x_max, 200).reshape(-1, 1)
     y_plot = model.predict(x_plot)
 
-    plt.figure()
+    plt.figure(figsize=(10, 5))
     plt.scatter(X, y, label='Training Data', alpha=0.6)
     plt.plot(x_plot, y_plot, color='blue', label='Linear Regression')
     plt.scatter(values_parsed, y_future, color='red', label='Forecast', marker='x')
@@ -95,16 +95,15 @@ def plot_forecast_with_axis(X, y, model, values_parsed, y_future, use_dates):
     plt.title('Forecast with Linear Regression')
 
     if use_dates:
-        ticks = np.linspace(x_min, x_max, 6)
-        labels = [datetime.fromordinal(int(t)).strftime('%Y-%m-%d') for t in ticks]
-        plt.xticks(ticks, labels, rotation=45)
+        ticks = np.linspace(x_min, x_max, 6, dtype=int)
+        labels = [datetime.fromordinal(t).strftime('%Y-%m-%d') for t in ticks]
+        plt.xticks(ticks, labels, rotation=45, ha='right')
 
     plt.tight_layout()
     plt.savefig(FORECAST_PLOT_PATH)
     plt.close()
 
-# ========== ROUTES ==========
-
+# === ROUTES ===
 @app.route("/get-columns", methods=["POST"])
 def get_columns():
     file = request.files.get("file")
@@ -137,14 +136,16 @@ def upload_file():
 
     df = df[[x_col, y_col]].dropna()
     df.columns = ['X', 'Y']
-    log_print("Data Cleaned using Pandas:\n\n Printing Header:\n", df.head())
+    log_print("Data Cleaned:\n\n", df.head())
 
-    # Plot original data
-    plt.figure()
+    # Save scatter plot
+    plt.figure(figsize=(10, 5))
     plt.scatter(df['X'], df['Y'])
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Scatter Plot')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
     plt.savefig(PLOT_PATH)
     plt.close()
 
@@ -162,7 +163,7 @@ def upload_file():
     y_pred = model.predict(X)
     r2 = r2_score(y, y_pred)
     mse = mean_squared_error(y, y_pred)
-    log_print(f"\n\n Model Trained with Scikit-Learn: \n R² = {r2:.4f}, MSE = {mse:.4f}")
+    log_print(f"\nModel Trained:\nR² = {r2:.4f}, MSE = {mse:.4f}")
 
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -176,9 +177,10 @@ def upload_file():
         )
         summary = response.choices[0].message.content
         cached_summary = summary
-    except:
+    except Exception as e:
         summary = "OpenAI summarization failed."
         cached_summary = summary
+        log_print("OpenAI error:", str(e))
 
     return jsonify({
         "summary": summary,
@@ -192,19 +194,29 @@ def upload_file():
 @app.route("/predict", methods=["POST"])
 def predict():
     future_x = request.form.get("future_x")
-    if not future_x:
-        return jsonify({"forecast": "No future values provided."}), 400
+    x_col = request.form.get("x_column")
+    y_col = request.form.get("y_column")
 
-    values = future_x.split(",")
-    numeric_vals, date_vals = [], []
-    for x in values:
-        try:
-            date_vals.append(datetime.strptime(x.strip(), "%Y-%m-%d").toordinal())
-        except:
-            numeric_vals.append(float(x.strip()))
-    values_parsed = np.array(date_vals if date_vals else numeric_vals).reshape(-1, 1)
+    if not future_x or not x_col or not y_col:
+        return jsonify({"forecast": "Missing input values or column selection."}), 400
+
+    try:
+        values = future_x.split(",")
+        numeric_vals, date_vals = [], []
+        for x in values:
+            try:
+                date_vals.append(datetime.strptime(x.strip(), "%Y-%m-%d").toordinal())
+            except:
+                numeric_vals.append(float(x.strip()))
+        values_parsed = np.array(date_vals if date_vals else numeric_vals).reshape(-1, 1)
+    except Exception as e:
+        return jsonify({"forecast": f"Invalid input: {str(e)}"}), 400
 
     df = pd.read_csv(CSV_CACHE)
+    if x_col not in df.columns or y_col not in df.columns:
+        return jsonify({"forecast": "Selected columns not found."}), 400
+
+    df = df[[x_col, y_col]].dropna()
     df.columns = ['X', 'Y']
     df['X_date'] = pd.to_datetime(df['X'], errors='coerce')
     use_dates = df['X_date'].notna().sum() >= len(df) // 2
@@ -217,7 +229,6 @@ def predict():
 
     model = LinearRegression()
     model.fit(X, y)
-
     y_future = model.predict(values_parsed)
     result = {
         datetime.fromordinal(int(x)).strftime("%Y-%m-%d") if use_dates else float(x): round(p, 2)
