@@ -146,6 +146,7 @@
       <a href="#forecast">Forecast</a>
     </nav>
   </header>
+
   <div id="upload" class="card">
     <h2>Upload Data &amp; Select Columns</h2>
     <form id="uploadForm">
@@ -172,6 +173,7 @@
       <div class="progress-bar" id="uploadProgress"><div class="progress-fill" id="uploadFill"></div></div>
     </form>
   </div>
+
   <div class="card">
     <h3>Choose Regression Model</h3>
     <select id="regressionModel" name="model" disabled>
@@ -179,18 +181,22 @@
       <!-- future models -->
     </select>
   </div>
+
   <div id="summary" class="card">
     <h3>Data Summary (OpenAI GPT-3.5)</h3>
     <pre id="summaryContent"></pre>
   </div>
+
   <div class="card">
     <h3>Model Metrics</h3>
     <pre id="metrics"></pre>
   </div>
+
   <div class="card">
     <h3>Scatter Plot</h3>
     <img id="plot" alt="Scatter Plot" style="display:none;">
   </div>
+
   <div id="forecast" class="card">
     <h3>Make Forecast</h3>
     <form id="predictForm">
@@ -204,18 +210,21 @@
     <h3>Forecast Plot</h3>
     <img id="forecastPlot" alt="Forecast Plot" style="display:none;">
   </div>
+
   <div class="card">
     <a href="https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/download-report" target="_blank">
       <button>Download PDF Report</button>
     </a>
   </div>
+
   <div class="footer">
     &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
     <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a> · 
     <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a>
   </div>
+
   <script>
-    // existing JS... (you can copy your previous script here)
+    // Copy your existing JS here to wire up uploads, processing, and prediction
   </script>
 </body>
 </html>
