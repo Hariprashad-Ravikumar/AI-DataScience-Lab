@@ -42,7 +42,7 @@
 
   <div class="section">
     <h3>Data Summary</h3>
-    <pre id="summary"></pre>
+    <pre id="summary" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
   </div>
 
   <div class="section">
@@ -57,7 +57,7 @@
 
   <div class="section">
     <form id="predictForm">
-      <label for="futureInput">Enter future values (comma-separated: YYYY-MM-DD or numbers)</label>
+      <label for="futureInput">Enter future values</label>
       <input type="text" id="futureInput" name="future_x" />
       <button type="submit">Predict</button>
     </form>
@@ -75,7 +75,7 @@
 
   <div class="section">
     <a href="https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/download-report" target="_blank">
-      <button>Download Report</button>
+      <button>Download PDF Report</button>
     </a>
   </div>
 
@@ -95,7 +95,7 @@
       const data = await response.json();
       document.getElementById('summary').textContent = data.summary || '';
       document.getElementById('log').textContent = data.log || '';
-      document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\\nMSE: ${data.mse}`;
+      document.getElementById('metrics').textContent = `R² Score: ${data.r2_score}\nMSE: ${data.mse}`;
       document.getElementById('plot').src = data.plot_url;
       document.getElementById('plot').style.display = 'block';
     });
@@ -115,7 +115,7 @@
         ? data.forecast
         : JSON.stringify(data.forecast, null, 2);
       document.getElementById('log').textContent = data.log || '';
-      document.getElementById('forecastPlot').src = data.forecast_plot_url;
+      document.getElementById('forecastPlot').src = data.forecast_plot_url + '?t=' + new Date().getTime();
       document.getElementById('forecastPlot').style.display = 'block';
     });
   </script>
