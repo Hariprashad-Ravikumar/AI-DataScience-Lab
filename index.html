@@ -16,16 +16,20 @@
     .section { margin-bottom: 30px; }
     #progressBar { width: 100%; height: 10px; background-color: #eee; margin-top: 10px; display: none; }
     #progressBar div { height: 100%; background-color: #4CAF50; width: 0%; }
+    #xColumn, #yColumn, #submitProcessing { display: none; }
   </style>
 </head>
 <body>
   <h1>AI-DataScience-Lab</h1>
-  <h2>AI Forecasting & Analysis Tool</h2>
+  <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
+  <h3><a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank" style="font-weight: normal; font-size: 16px;">View source code and documentation on GitHub</a></h3>
 
   <div class="section">
     <form id="uploadForm">
-      <label for="fileInput">Upload CSV File</label>
+      <label for="fileInput">Choose CSV File</label>
       <input type="file" id="fileInput" name="file" required />
+
+      <button id="loadColumnsBtn" type="button">Upload</button>
       <div id="progressBar"><div></div></div>
 
       <label for="xColumn">Independent Variable (X column)</label>
@@ -34,10 +38,18 @@
       <label for="yColumn">Dependent Variable (Y column)</label>
       <select id="yColumn" name="y_column" required></select>
 
-      <button type="submit">Upload</button>
+      <button id="submitProcessing" type="submit">Submit for Processing</button>
     </form>
   </div>
 
+  <div class="section">
+  <h3>Choose Regression</h3>
+  <select id="regressionModel" name="model" disabled>
+    <option value="linear" selected>Linear Regression (More options coming soon...)</option>
+  </select>
+</div>
+
+  
   <div class="section">
     <h3>Processing Log</h3>
     <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
@@ -88,13 +100,18 @@
     const yColumn = document.getElementById('yColumn');
     const progressBar = document.getElementById('progressBar');
     const progressFill = progressBar.querySelector('div');
+    const loadColumnsBtn = document.getElementById('loadColumnsBtn');
+    const submitProcessing = document.getElementById('submitProcessing');
 
-    fileInput.addEventListener('change', async function () {
+    loadColumnsBtn.addEventListener('click', async function () {
+      const file = fileInput.files[0];
+      if (!file) return alert("Please choose a CSV file first.");
+
       const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+      formData.append('file', file);
 
       progressBar.style.display = 'block';
-      progressFill.style.width = '25%';
+      progressFill.style.width = '30%';
 
       const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/get-columns', {
         method: 'POST',
@@ -102,21 +119,18 @@
       });
 
       const data = await response.json();
+      if (!data.columns) return alert("Failed to load columns.");
+
       xColumn.innerHTML = '';
       yColumn.innerHTML = '';
-
       data.columns.forEach(col => {
-        const optionX = document.createElement('option');
-        optionX.value = col;
-        optionX.textContent = col;
-        xColumn.appendChild(optionX);
-
-        const optionY = document.createElement('option');
-        optionY.value = col;
-        optionY.textContent = col;
-        yColumn.appendChild(optionY);
+        xColumn.innerHTML += `<option value="${col}">${col}</option>`;
+        yColumn.innerHTML += `<option value="${col}">${col}</option>`;
       });
 
+      xColumn.style.display = 'block';
+      yColumn.style.display = 'block';
+      submitProcessing.style.display = 'block';
       progressFill.style.width = '100%';
       setTimeout(() => progressBar.style.display = 'none', 500);
     });
