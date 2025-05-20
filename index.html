@@ -6,8 +6,8 @@
   <title>AI DataScience Lab</title>
   <style>
     body {
-      font-family: 'Times New Roman', Times, serif;
-      max-width: 800px;
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
       margin: 40px auto;
       padding: 0 20px;
       color: #333;
@@ -15,17 +15,12 @@
 
     h1, h2 {
       text-align: center;
-      margin: 0;
-    }
-    h3 {
-      text-align: left;
-      margin: 0;
     }
 
     h2 {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: normal;
-      color: #666;
+      color: #555;
       margin-bottom: 20px;
     }
 
@@ -33,86 +28,54 @@
       display: block;
       width: 100%;
       margin-bottom: 10px;
-      font-family: 'Times New Roman', Times, serif;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
     }
 
-    input, select, button {
-      padding: 8px;
-      box-sizing: border-box;
-      border-radius: 6px;
+    input, select {
       border: 1px solid #ccc;
     }
 
     button {
-      width: auto;
+      background-color: #0056d2;
+      color: white;
+      border: none;
       cursor: pointer;
-      background-color: #f4f4f4;
-      border: 1px solid #888;
-      transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #e0e0e0;
-    }
-
-    pre, img {
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      background: #f9f9f9;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
+      background-color: #0041a8;
     }
 
     .section {
       margin-bottom: 30px;
     }
 
-    #progressBar, #processingProgress, #predictProgress {
-      width: 100%;
-      height: 10px;
-      background-color: #eee;
-      display: none;
-      margin-top: 10px;
+    pre, img {
+      padding: 12px;
+      background: #f8f8f8;
+      border: 1px solid #ccc;
       border-radius: 5px;
-      overflow: hidden;
     }
 
-    #progressBar div,
-    #processingFill,
-    #predictFill {
-      height: 100%;
-      width: 0%;
+    img {
+      max-width: 100%;
     }
 
-    #progressBar div {
-      background-color: #4CAF50;
-    }
-
-    #processingFill {
-      background-color: #4CAF50;
-    }
-
-    #predictFill {
-      background-color: #2196F3;
-    }
-
-    #xColumn, #yColumn, #submitProcessing {
+    .hidden {
       display: none;
     }
 
     .footer {
       text-align: center;
-      font-size: 14px;
+      font-size: 13px;
+      color: #888;
       margin-top: 40px;
-      color: #666;
     }
 
     .footer a {
-      color: #0066cc;
+      color: #0056d2;
       text-decoration: none;
     }
   </style>
@@ -120,128 +83,131 @@
 <body>
   <h1>AI-DataScience-Lab</h1>
   <h2>Built with Pandas, scikit-learn, and OpenAI GPT-3.5 API</h2>
-  <h2>(View source code on Hari's <a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank" style="font-weight: normal; font-size: 16px;">GitHub</a>)</h2>
+  <h2>(<a href="https://github.com/Hariprashad-Ravikumar/AI-DataScience-Lab" target="_blank">View source code on Hari's GitHub</a>)</h2>
 
+  <!-- Stage 1 -->
   <div class="section">
     <form id="uploadForm">
       <label for="fileInput">Choose CSV File</label>
       <input type="file" id="fileInput" name="file" required />
       <button id="loadColumnsBtn" type="button">Upload</button>
-      <div id="progressBar"><div></div></div>
+      <div id="progressBar" class="hidden"><div style="width: 100%; height: 8px; background-color: #4CAF50;"></div></div>
 
-      <label for="xColumn">Independent Variable (X column)</label>
-      <select id="xColumn" name="x_column" required></select>
+      <label for="xColumn" class="hidden">Independent Variable (X column)</label>
+      <select id="xColumn" name="x_column" class="hidden"></select>
 
-      <label for="yColumn">Dependent Variable (Y column)</label>
-      <select id="yColumn" name="y_column" required></select>
+      <label for="yColumn" class="hidden">Dependent Variable (Y column)</label>
+      <select id="yColumn" name="y_column" class="hidden"></select>
 
-      <button id="submitProcessing" type="submit">Submit for Processing</button>
-      <div id="processingProgress"><div id="processingFill"></div></div>
+      <button id="submitProcessing" class="hidden" type="submit">Submit for Processing</button>
     </form>
   </div>
 
+  <!-- Stage 1 -->
   <div class="section">
     <h3>Choose Regression</h3>
     <select id="regressionModel" name="model" disabled>
-      <option value="linear" selected>Linear Regression (More options coming soon...)</option>
+      <option value="linear">Linear Regression (More models soon...)</option>
     </select>
   </div>
 
-  <div class="section">
-    <h3>Processing Log</h3>
-    <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
+  <!-- Stage 2: Processing Results -->
+  <div id="processingResults" class="hidden">
+    <div class="section">
+      <h3>Processing Log</h3>
+      <pre id="log">Loading modules: pandas, scikit-learn, matplotlib...</pre>
+    </div>
+
+    <div class="section">
+      <h3>Data Summary (by OpenAI GPT-3.5 API)</h3>
+      <pre id="summary" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+    </div>
+
+    <div class="section">
+      <h3>Model Performance</h3>
+      <pre id="metrics"></pre>
+    </div>
+
+    <div class="section">
+      <h3>Scatter Plot</h3>
+      <img id="plot" style="display:none;" alt="Scatter Plot" />
+    </div>
+
+    <div class="section">
+      <form id="predictForm">
+        <label for="futureInput">Enter future values (comma-separated: YYYY-MM-DD or numbers)</label>
+        <input type="text" id="futureInput" name="future_x" />
+        <button type="submit">Predict</button>
+      </form>
+    </div>
   </div>
 
-  <div class="section">
-    <h3>Data Summary (by OpenAI GPT-3.5 API)</h3>
-    <pre id="summary" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></pre>
+  <!-- Stage 3: Forecast -->
+  <div id="forecastResults" class="hidden">
+    <div class="section">
+      <h3>Forecast Result</h3>
+      <pre id="forecast"></pre>
+    </div>
+
+    <div class="section">
+      <h3>Forecast Visualization</h3>
+      <img id="forecastPlot" style="display:none;" alt="Forecast Plot" />
+    </div>
+
+    <div class="section">
+      <a href="https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/download-report" target="_blank">
+        <button>Download PDF Report</button>
+      </a>
+    </div>
   </div>
 
-  <div class="section">
-    <h3>Model Performance</h3>
-    <pre id="metrics"></pre>
-  </div>
-
-  <div class="section">
-    <h3>Scatter Plot</h3>
-    <img id="plot" style="display:none;" alt="Scatter Plot" />
-  </div>
-
-  <div class="section">
-    <form id="predictForm">
-      <label for="futureInput">Enter future values (comma-separated: YYYY-MM-DD or numbers)</label>
-      <input type="text" id="futureInput" name="future_x" />
-      <button type="submit">Predict</button>
-      <div id="predictProgress"><div id="predictFill"></div></div>
-    </form>
-  </div>
-
-  <div class="section">
-    <h3>Forecast Result</h3>
-    <pre id="forecast"></pre>
-  </div>
-
-  <div class="section">
-    <h3>Forecast Visualization</h3>
-    <img id="forecastPlot" style="display:none;" alt="Forecast Plot" />
-  </div>
-
-  <div class="section">
-    <a href="https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/download-report" target="_blank">
-      <button>Download PDF Report</button>
-    </a>
+  <!-- Footer -->
+  <div class="footer">
+    &copy; 2025 Hariprashad Ravikumar · <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a> · 
+    <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a>
   </div>
 
   <script>
     const fileInput = document.getElementById('fileInput');
     const xColumn = document.getElementById('xColumn');
     const yColumn = document.getElementById('yColumn');
-    const progressBar = document.getElementById('progressBar');
-    const progressFill = progressBar.querySelector('div');
     const loadColumnsBtn = document.getElementById('loadColumnsBtn');
     const submitProcessing = document.getElementById('submitProcessing');
-    const processingProgress = document.getElementById('processingProgress');
-    const processingFill = document.getElementById('processingFill');
-    const predictProgress = document.getElementById('predictProgress');
-    const predictFill = document.getElementById('predictFill');
+    const processingResults = document.getElementById('processingResults');
+    const forecastResults = document.getElementById('forecastResults');
 
-    loadColumnsBtn.addEventListener('click', async function () {
+    loadColumnsBtn.addEventListener('click', async () => {
       const file = fileInput.files[0];
-      if (!file) return alert("Please choose a CSV file first.");
+      if (!file) return alert("Please select a CSV file.");
 
       const formData = new FormData();
       formData.append('file', file);
 
-      progressBar.style.display = 'block';
-      progressFill.style.width = '30%';
+      document.getElementById('progressBar').classList.remove('hidden');
 
-      const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/get-columns', {
+      const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/get-columns', {
         method: 'POST',
         body: formData
       });
 
-      const data = await response.json();
-      if (!data.columns) return alert("Failed to load columns.");
+      const data = await res.json();
+      if (!data.columns) return alert("Error loading columns.");
 
-      xColumn.innerHTML = '';
-      yColumn.innerHTML = '';
+      xColumn.innerHTML = yColumn.innerHTML = '';
       data.columns.forEach(col => {
         xColumn.innerHTML += `<option value="${col}">${col}</option>`;
         yColumn.innerHTML += `<option value="${col}">${col}</option>`;
       });
 
-      xColumn.style.display = 'block';
-      yColumn.style.display = 'block';
-      submitProcessing.style.display = 'block';
-      progressFill.style.width = '100%';
-      setTimeout(() => progressBar.style.display = 'none', 500);
+      xColumn.classList.remove('hidden');
+      yColumn.classList.remove('hidden');
+      xColumn.previousElementSibling.classList.remove('hidden');
+      yColumn.previousElementSibling.classList.remove('hidden');
+      submitProcessing.classList.remove('hidden');
     });
 
-    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      processingProgress.style.display = 'block';
-      processingFill.style.width = '20%';
 
       const formData = new FormData();
       formData.append('file', fileInput.files[0]);
@@ -249,14 +215,13 @@
       formData.append('y_column', yColumn.value);
       formData.append('model', 'linear');
 
-      const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/upload', {
+      const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/upload', {
         method: 'POST',
         body: formData
       });
 
-      const data = await response.json();
-      processingFill.style.width = '100%';
-      setTimeout(() => processingProgress.style.display = 'none', 500);
+      const data = await res.json();
+      processingResults.classList.remove('hidden');
 
       document.getElementById('summary').textContent = data.summary || '';
       document.getElementById('log').textContent = data.log || '';
@@ -265,39 +230,28 @@
       document.getElementById('plot').style.display = 'block';
     });
 
-    document.getElementById('predictForm').addEventListener('submit', async function (e) {
+    document.getElementById('predictForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      predictProgress.style.display = 'block';
-      predictFill.style.width = '30%';
 
       const formData = new FormData();
       formData.append('future_x', document.getElementById('futureInput').value);
-      formData.append('x_column', document.getElementById('xColumn').value);
-      formData.append('y_column', document.getElementById('yColumn').value);
+      formData.append('x_column', xColumn.value);
+      formData.append('y_column', yColumn.value);
 
-      const response = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/predict', {
+      const res = await fetch('https://ai-dslab-backend-cpf2feachnetbbck.westus-01.azurewebsites.net/predict', {
         method: 'POST',
         body: formData
       });
 
-      const data = await response.json();
-      predictFill.style.width = '100%';
-      setTimeout(() => predictProgress.style.display = 'none', 500);
+      const data = await res.json();
+      forecastResults.classList.remove('hidden');
 
       document.getElementById('forecast').textContent = typeof data.forecast === "string"
         ? data.forecast
         : JSON.stringify(data.forecast, null, 2);
-      document.getElementById('log').textContent = data.log || '';
       document.getElementById('forecastPlot').src = data.forecast_plot_url + '?t=' + new Date().getTime();
       document.getElementById('forecastPlot').style.display = 'block';
     });
   </script>
-
-  <div class="footer">
-    &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
-    <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a> · 
-    <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a>
-  </div>
 </body>
 </html>
