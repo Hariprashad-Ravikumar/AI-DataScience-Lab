@@ -136,7 +136,7 @@ def upload_file():
 
     df = df[[x_col, y_col]].dropna()
     df.columns = ['X', 'Y']
-    log_print("Data Cleaned:\n\n", df.head())
+    log_print("Data Cleaned Using Pandas:\n\n - Printing Header\n", df.head())
 
     # Save scatter plot
     plt.figure(figsize=(10, 5))
@@ -163,7 +163,7 @@ def upload_file():
     y_pred = model.predict(X)
     r2 = r2_score(y, y_pred)
     mse = mean_squared_error(y, y_pred)
-    log_print(f"\nModel Trained:\nR² = {r2:.4f}, MSE = {mse:.4f}")
+    log_print(f"\nModel Trained Using Scikit-Learn:\nR² = {r2:.4f}, MSE = {mse:.4f}")
 
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
