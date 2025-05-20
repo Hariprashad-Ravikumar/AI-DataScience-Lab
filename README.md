@@ -7,7 +7,7 @@ The frontend is hosted on **GitHub Pages**, and the backend is deployed on **Azu
 ---
 
 ## 🌐 Live Demo
-
+- [![Watch the demo](https://img.youtube.com/vi/SXjqiuK8Lfk/maxresdefault.jpg)](https://youtu.be/SXjqiuK8Lfk)
 - **Frontend (GitHub Pages):** [https://hariprashad-ravikumar.github.io/AI-DataScience-Lab/](https://hariprashad-ravikumar.github.io/AI-DataScience-Lab/)
 - **Backend (Azure)**
 
