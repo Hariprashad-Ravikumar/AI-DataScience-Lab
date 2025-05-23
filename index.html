@@ -289,7 +289,10 @@
   <!-- Footer -->
   <div class="footer">
     <small style="color:#aaa;">App Version: 1.0.0 (Beta)</small>
-    <br> &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
+    <br> <div style="margin:8px 0; font-size:14px; color:#ccc;">
+      Total page views : <strong id="visit-counter">…</strong>
+    </div>
+    &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
     <a href="https://hariprashad-ravikumar.github.io" target="_blank">Website</a> · 
     <a href="https://github.com/Hariprashad-Ravikumar" target="_blank">GitHub</a>
   </div>
@@ -399,5 +402,21 @@
       document.getElementById('forecastPlot').style.display = 'block';
     });
   </script>
+
+  <script>
+  async function updateCounter() {
+    try {
+      const res = await fetch(
+        'https://api.countapi.xyz/hit/AI-DataScience-Lab/page_visits'
+      );
+      const { value } = await res.json();
+      document.getElementById('visit-counter').textContent = value;
+    } catch (err) {
+      console.error('Counter error', err);
+    }
+  }
+  updateCounter();
+</script>
+  
 </body>
 </html>
