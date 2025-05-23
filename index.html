@@ -286,10 +286,8 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <div style="margin:8px 0; font-size:14px; color:#ccc;">
-  Total page views: <strong id="visit-counter">0</strong>
-</div>
+
+  
   <div class="footer">
     <small style="color:#aaa;">App Version: 1.0.0 (Beta)</small>
     <br> &copy; 2025 Hariprashad Ravikumar · All rights reserved<br>
@@ -402,26 +400,6 @@
       document.getElementById('forecastPlot').style.display = 'block';
     });
   </script>
-
-  <!-- right before </body> -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const el = document.getElementById('visit-counter');
-    fetch(URL)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        el.textContent = data.value;
-      })
-      .catch(err => {
-        console.error('Counter error:', err);
-        // optionally: el.textContent = '—';
-      });
-  });
-</script>
-
   
 </body>
 </html>
